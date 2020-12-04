@@ -1,0 +1,20 @@
+::::::::::::::::::::::::::::::::::COMPUTERSYSTEMEN::::::::::::::::::::::::::::::::::
+____________________________________________________________________________________
+
+
+-- Hoofdstuk 3 :: Adressering 
+
+De uiteindelijke doelcode is gans tegenover van wat wij als programmeurs willen 
+schrijven van code.
+
+	- 3.1 :: Adreslengte 
+
+Met de adreslengte bedoelen we het aantal bits dat gebruikt wordt om het adres voor
+te stellen, de adreslengte is de keuze van de fabrikant.
+De lengte bepaalt het aantal geheugencellen waaruit geheugen kan bestaan, een 
+geheugencel is de kleinste adresseerbare geheugeneenheid, de grote van zo een 
+geheugencel vershilt van computertpe tot computertype, maar de meest voorkomende is 
+8 bits, de grote van een geheugencel word ook wel de resolutie genoemd.
+
+Het verband tussen geheugengrootte, adreslengte en resolutie is dat het aantal 
+geheugencellen de lengte bepaalt van het adres

@@ -1,0 +1,394 @@
+::::::::::::::::::::::::::::::::::COMPUTERSYSTEMEN::::::::::::::::::::::::::::::::::
+____________________________________________________________________________________
+
+
+-- hoofdstuk 2 :: Werkgeheugen, centrale verwerkingseeneid, programmas
+
+	- 2.1 :: Werkgeheugen 
+
+Het werkgeheugen is ingedeeld in bytes, en elke byte heeft een adres en daardoor 
+een waarde.
+
+		- 2.1.1 :: Adressen 
+
+De inhoud van een byte bestaat uit 2 hexadeciale cijfers, een adres is een getal
+van 32 getallen of 8 hexadecimale cijfers, het is een altijd strict positief getal 
+en er kan dus geen component van worden genomen, adressen gaan van 00000000 tot 
+ffffffff.
+
+		- 2.1.2 :: Bytes groeperen 
+
+Met 8 bits als inhoud kan men alleen maar van -128 tot 127 gaan en dit is te weinig
+en daarom worden bits samengenomen en dan heeft men 16 bits om een getal voortestellen
+in de plaats van maar 8.
+
+Dit word een woord genoemd en dat staat dan voor 16bits, als je bezig bent over 32bits
+dan ben je bezig over een dubblewoord, om het gemakkelijk te maken stellen ze het geheugen 
+voor als een opeenvolging van dubbelwoorden, en daardoor word ook alleen maar de eerste 
+bit gezien als het adres van het dubbelwoord want je weet hoelang het is en waar het 
+begint.
+
+		- 2.1.3 :: Basis en verplaatsing 
+
+Er zijn twee manieren om adressen aante duiden.
+ // de absolute manier is dat elk adres een echt adres is in het volledige geheugen,
+    dit is heel hard en er kan rap iets misgaan.
+ // een andere manier is op basis van basis en verplaatsing, hierbij word een bit in 
+    het geheugen gekozen als het beginpunt of de basis, en bytes met een adres dat niet
+    kleiner is dan het basis adres worden aangeduid met een offset of een verplaatsing
+    en deze verplaatsing hoed in hoeveel bytes je moet opschuiven.
+
+omdat het tweede vaker word gebruikt dan het eerste is u adres dus de basis + offset
+
+	- 2.2 :: Registers in de centrale verwerkingseenheid
+
+In de centrale verwerkingseenheid bevinden zich de registers zoals het EAX register,
+dit register is een plaats waar rekenen enzo plaatsvind 
+
+	- 2.3 :: Bevelen 
+
+Een bevel staat meestal in binaire vorm in het werkgeheugen. 
+bv:
+A1 00 02 00 00 03 05 40 02 00 00 A3 00 03 00 00 2B 05 00 02 00 00 03 05 20 03 00 00
+en in het geheugen staan deze binaire getallen 
+
+0200 00 00 12 34
+0240 00 bc 00 55
+0300 aa bb cc dd 
+0320 00 00 00 03
+
+de computer gaat dit rijtje van bevelen als volgt uitvoeren.
+ // de CVE herkent A1 00 02 00 00 als het bevel en kopieert de inhoud van het dubbelwoord
+    met adres 00 00 02 00 naar EAX, het effect van de uitvoering van dit bevel is EAX =
+    00 00 12 34
+ // de CVE herkent 03 05 40 02 00 00 als het bevel : tel de inhoud van het dubbelwoord
+    met adres 000000240 bij inhoud van EAX, het effect van de uitvoering van dit bevel is 
+    het getal 00 bc 00 55 word bij 00 00 12 34 opgeteld en de nieuwe inhoud van EAX = 
+    00 bc 12 89
+ // de CVE herkent dan A3 00 03 00 00 als het bevel : kopieer de inhoud van EAX naar 
+    het dubbelwoord met adres 00000300 en het efect van dit bevel is 
+
+0200 00 00 12 34 
+0240 00 bc 00 55
+0300 00 bc 12 89
+0320 00 00 00 03
+
+ // de CVE herkent 2B 05 00 02 00 00 als het bevel : trek de inhoud van het dubbelwoord
+    met adres 00000200 af van de inhoud van EAX. Het efect van de uitvoering van dit bevel
+    is het getal 00 00 12 34 wordt afgetrokken van 00 bc 12 89, en de nieuwe inhoud van 
+    EAX  is dan 00 bc 00 55 
+ // de CVE herkent 03 05 20 03 00 00 als het bevel : tel de inhoud van het dubbelwoord 
+    met adres 00000320 op bij de inhoud van EAX. het efect van de uitvoering van dit bevel
+    is : het getal 00 00 00 03 word bij 00 bc 00 55 opgeteld, en de nieuwe inhoud van EAX
+    is dan 00 bc 00 58 
+
+		- 2.3.1 :: Zelf bevelen schrijven 
+
+machine bevelen bestaan uit twee delen
+ // een deel dat zegt wat er moet gebeuren : bv kopieren of optellen of aftrekken enz.
+    dit deel noemt men de functiecoede bv A1 (kopieer een dubblewoord naar eax),
+    03 05 ( tel een dubbelwoord op bij EAX),A3 ( kopieer EAX naar een dubbelwoord),
+    2b 05 ( trek een dubbelwoord af van EAX)
+ // een ander deel zegt waarmee het moet gebeuren, dit is meestal het adres.
+
+de bevelen staan ook meestal omgekeerd geschreven en dit is omdat de CVE dit zo wilt
+
+			- 2.3.1.1 :: De bevelen zoals wij ze schrijven 
+
+het is aangenamer voor programeurs om code te kunnen schrijven in een mnemotechnische 
+functiecodes te kunnen schrijven, dit is lettercode. En het is ook beter om hem of haar
+toe te laten de bytes van de adressen in de normale volgorde te mogen schrijven.
+dan zien de vorige voorbeelden er zo uit: 
+ 
+ mov eax, [200h]
+ add eax, [240h]
+ mov [300h], eax
+ sub eax, [200h]
+ add eax, [320h]
+
+Om deze code terug om te zetten in hexadeciamle code heeft men een assembleerprogramma 
+nodig, dit is een voorbeeld van een vertaal programma.
+
+een voorbeeld is:
+ // mov eax, [200h] - dit houd in dat er een getal met de inhoud van 200h naar eax zal 
+    gekopieerd worden naar EAX.
+ // dan is het eax register van (het vorig getal bv ) 00 bc 00 55 naar het nieuwe getal 
+    gegaan 00  00 00 2c
+
+bevelen zijn niet destructief alle plekken blijven bestaan en er word niks verwijderd met
+move het is alleen zo dat de vorige dat word overschreven.
+
+		- 2.3.2 :: Symbolische adressen 
+
+Voor een goede werking in een programme is er een begin en eind bevel nodig zo is er in 
+assembly dit nodig.
+
+%include "gt.asm"
+	covar
+	inleiding
+	//de bevelen van het programma//
+	slot
+
+Tegenwoordig bestaat er in elke taal een manier om symbolische adressen te maken en er 
+mee te werken.
+
+Er is wel een essentiële vereiste : als de programmeur een symbolische adres gebruikt dan
+moet aangeven van welk type dit adres is. Een symbolisch adres moet gedefinieerd zijn, 
+deze definitie specifieert ook het type bv voor een dubbelwoord
+ // x: resd 1
+resd staat voor reserve dauble, resb staat voor reserve byte, en ook nog resw dat staat 
+voor reserve word en 1 woord = 2 bytes.
+
+De definities moeten altijd tussen de lijnen van covar en inleiding staan.
+bv : 
+
+	%include "gt.asm"
+		covar
+	x: 	resd 1
+	y: 	resd 1 
+	z: 	resd 1
+	hulpd:	resd 1
+		inleiding
+		inv [x]
+		inv [y]
+		inv [z]
+		mov eax, [z]
+		add eax, [z]
+		add eax, [y]
+		mov [hulpd], eax
+		add eax, [hulpd]
+		add eax, [x]
+		mov [hulpd], eax
+		uit [hulpd]
+		slot
+
+De lijnen tussen covar en inleiding reserveren allemaal een dubbelwoord en de computer
+maakt daarbij zelf de keuze om deze ergens te stationeren en dan kan dit er zo uit zien.
+ x ==> 0000
+ y ==> 0004
+ z ==> 0008
+ hulpd ==> 000c
+		
+		- 2.3.3 :: Ons eerste programma op de computer 
+
+		- 2.3.4 :: Constanten 
+
+In een programma twee soort variabelen gebruikt namenlijk de veranderlijken en de constant.
+Een veranderlijke is een plaats in het geheugen waarin een tussen resultaat word gestoreerd.
+Een constante daarintegen is een cijfer dat niet gaat veranderen.
+
+			- 2.3.5 :: Het imul bevel
+
+Dit is het bevel voor een vermeigvuldiging, maar omdat deze uitkomst groter zou kunnen zijn
+dan een enkelvoudig register aankan werken men hier met een dubbele accumulator, dit betekent 
+dat men zowel EAX als EDX gebruikt.
+
+bv 
+
+	getal1: 	dd 	7
+	getal2:		dd	5
+			...
+			mov	eax,[getal1]
+			imul	dword,[getal2]
+
+	in de registers zal dit gebeuren
+
+	voor 		mov	eax,[getal1] :: EDX :: ?? ?? ?? ?? :: EAX :: ?? ?? ?? ??
+	na 		mov	eax,[getal1] ::	EDX :: ?? ?? ?? ?? :: EAX :: 00 00 00 07
+	na 		imul	dword [getal2]	:: EDX :: 00 00 00 00 :: EAX :: 00 00 00 23
+
+			
+			- 2.3.6 :: Het idiv bevel
+
+Dit is het omgekeerd bevel van de imul , het deeltal moet zich bevinden in het registerpaar,
+de deling levert 2 resultaten op namenlijk de rest en het quotient, het quotient komt in EAX,
+en de rest in EAX.
+
+ bv 
+
+	nul:		dd 	0
+	deeltal:	dd	85
+	deler:		dd	3
+			...
+			mov	edx,[null]
+			mov 	eax,[deeltal]
+			idiv	dword [deler]
+
+Men zet eerst de null in edx want dan is men zeker dat dit register leeg en proper is , een 
+andere manier om dit te doen is eerst u getal maal 1 doen.
+
+	Ondertussen in de registers.
+	
+	na 		mov 	edx,[null]	:: EDX :: 00 00 00 00 :: EAX :: ?? ?? ?? ??
+	na 		mov	eax,[deeltal] 	:: EDX :: 00 00 00 00 :: EAX :: 00 00 00 55
+	na 		idiv	dword [deler]	:: EDX :: 00 00 00 01 :: EAX :: 00 00 00 1C
+
+			
+			- 2.3.7 :: Oefeningen, symbolische adressen
+
+			- 2.3.8 :: Sprongbevelen
+
+Om een loop te maken moet je een prgramma laten springen.
+
+				- 2.3.8.1 :: De onvoorwaardelijke sprong
+
+ bv 
+
+			...
+			inv 	[x]
+	haha:		mov 	eax,[x]
+			add 	eax,[een]
+			...
+			mov 	[hulpd],eax
+			jmp 	haha
+			...
+
+
+Als het programma bij de jmp haha komt gaat het springen naar de haha: mov eax,[x] lijn en 
+begint terug van daar.
+
+				- 2.3.8.2 :: Vlaggen 
+
+In de CVE bevind zich het vlaggenregister, deze register bevatten bytes maar wijnoemen die
+vlaggen een paar voorbeelden van een vlag zijn.
+
+	// de nul vlag
+	// de teken vlag
+	// de overloop vlag 
+
+De overloop vlag checkt gewoon of de vlag groter is dan 2167483647 of 2tot de 31ste.
+
+				- 2.3.8.3 :: Vergelijking
+
+Er zijn ook bevelen die geen ander efect hebben dan het instellen van een of meerdere vlaggen
+dit is het compare bevel of het cmp bevel.
+
+bv 
+		ahorn:	resd	1
+		beuk:	resd	1
+			...
+			mov	eax	,	[ahorn]
+			cmp	eax	,	[beuk]
+
+
+				- 2.3.8.4 :: Voorwaardelijke sprong
+
+Maar een programmeur moet zich in feiten niks aantrekken van deze vlaggen want er is een manier
+voor hun om daarmee te werken, zo kan je na een cmp bevel dit schrijven.
+
+	// je 		(1	=	2)
+	// jne 		(1	!=	2)
+	// jl		(1	<	2)
+	// jle		(1	<=	2)
+	// jg		(1	>	2)
+	// jge		(1	>=	2)
+
+				- 2.3.8.5 :: Oefeningen, sprongbevelen
+
+	- 2.4 :: De uitvoering van een programma 
+
+		- 2.4.1 :: De besturingseenheid
+
+In de centrale verwerkingseenheid staan registers(EAX,EBX,ECX,EDX) en ook de rekeneenheid en 
+het bestuuringseenheid.
+
+In de besturingseenheid hebben we twee register het bevelregister en de bevelenteller.
+Het bevelregister bevat het register waarmee de computer bezig is.
+In de bevelenteller staat het adres van het bevel dat aan de beurt is als de computer klaar
+zal zijn met de uitvoering.
+
+Deze twee worde bestuurd door de haal en uitvoer cyclus.
+
+Tijdens de haalcyclus word het bevel waarvan het adres in de bevelnteller staat gekopieerd 
+naar het bevelregistter, en vergroot dan de bevelenteller met de lengte van het opgehale 
+bevel;
+
+Tijdens de uitvoerings cyclus word de inhoud van het bevelregister geanalyseerd en de 
+besturingseenheid interpreteert de functiecode en geeft de rest van de aparatuur opdracht
+het bevel uit te voeren.
+
+bv 
+	bevelenteller 		:	00 00 00 00 
+	bevelregister		:	(leeeg)
+
+eerste haalcyclus
+	
+	bevelenteller		:	00 00 00 05
+	bevelregister		:	A1 9C 01 00 00 
+
+uitvoerings cyclus en daarna haalcyclus 
+
+	bevelenteller 		: 	00 00 00 0B
+	bevelregister		: 	F7 2D A8 01 00 00 
+
+uitvoerings cyclus en daarna haalcyclus
+
+	bevelenteller		:	00 00 00 11 
+	bevelregister		:	03 05 A0 01 00 00
+
+uitvoerings cyclus en daarna haalcyclus
+
+	bevelenteller		:	00 00 00 17
+	bevelregister		: 	F7 2D A8 01 00 00
+
+en dit blijft doorgaan tot het programma eindigd.
+
+		- 2.4.2 :: Vertaling van een sprongbevel
+
+Dit is een voorbeeld van een vertaald naar computertaal programma
+
+						%include 	"gt.asm"
+								covar
+								...
+								inleiding
+								...
+00000022	A1[9C010000]			haha:		mov	eax,	[A1]
+00000027	8B1D[A0010000]					mov 	ebx,	[A2]
+0000002D	8B0D[A4010000]					mov 	ecx,	[A3]
+00000033 	8B15[A8010000]					mov 	edx,	[A4]
+00000039	A3[9C010000]					mov	[A1],	eax
+0000003E	891D[A0010000]					mov	[A2],	ebx
+00000044	890D[A4010000]					mov	[A3],	ecx
+0000004A	8915[A8010000]					mov	[A4],	edx
+00000050	A1[9C010000]					mov	eax,	[A1]
+00000055	2b05[A0010000]					sub 	eax,	[A2]
+0000005B	75C5						jnz	haha
+0000005D	F72D[A0010000]					imul	dword	[A2]
+
+
+Het sprongbevel is dus vertaald in 75C5, de functiecode is 75 , en in de 2de byte 
+vinden we een bedrag dat aangeeft naar waar er moet gesprongen worde dus in dit geval
+is c5 het getal dat bij de bevelenteller moet opgeteld worden, dit word gezien in een 
+2-complement en dat betekent dus dat als het volledige nummer begint met een 1 dan is 
+het een negatief getal dat er bij moet opgeteld worden.
+
+		- 2.4.3 :: Uitvoering van een sprongbevel
+
+	- 2.6 :: Rekeneenheid
+
+De rekeneenheid zorgt ervoor dat de bewerkingen uitgevoerd worden, de rekeneenheid 
+heeft twee ingengen en 1 uitgang de uitgan word verkregen door op beide ingangen 
+een welbepaalde functie toe te passen bv 
+	//	+
+	//	/
+	//	*
+	//	-
+De inhoud van elk regeister kan naar elk van de ingange gekopieerd worden, de uitgang
+kan ook naar elke register gekopieerd worden, dit gebeurt via interne bussen.
+
+	- 2.7 :: Klok
+
+Bij het uitvoeren van bewerkingen door reken en besturingseenheid is tijd nogal
+kritisch
+	// Gegevens kopieren gaat snel maar kost eenige tijd want een verbindign
+	   moet lang genoeg gesloten blijven maar ook niet langer dan nodig.
+	// Bij paralel transport moeten alle verbindingen teezelfdertijd gesloten
+	   worden.
+	// De rekeneenheid heeft enige tijd nodig om de bewerking uit te voeren.
+	// Het werkgeheugen heeft enige tijd nodig om gegevens op te slaan of op te 
+	   halen.
+
+De uitvoering van een programma vereist dat verschillende delen van de computer
+op dezelfde moment beginnen en dus daarom is de klok onmisbaar.
+
+
