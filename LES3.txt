@@ -4,17 +4,414 @@ ________________________________________________________________________________
 
 -- Hoofdstuk 3 :: Adressering 
 
-De uiteindelijke doelcode is gans tegenover van wat wij als programmeurs willen 
-schrijven van code.
+De uiteindelijke doelcode is gans tegenover van wat wij als programmeurs willen schrijven van code.
 
 	- 3.1 :: Adreslengte 
 
-Met de adreslengte bedoelen we het aantal bits dat gebruikt wordt om het adres voor
-te stellen, de adreslengte is de keuze van de fabrikant.
-De lengte bepaalt het aantal geheugencellen waaruit geheugen kan bestaan, een 
-geheugencel is de kleinste adresseerbare geheugeneenheid, de grote van zo een 
-geheugencel vershilt van computertpe tot computertype, maar de meest voorkomende is 
-8 bits, de grote van een geheugencel word ook wel de resolutie genoemd.
+Met de adreslengte bedoelen we het aantal bits dat gebruikt wordt om het adres voor te stellen, de adreslengte is de keuze van de fabrikant.
+De lengte bepaalt het aantal geheugencellen waaruit geheugen kan bestaan, een geheugencel is de kleinste adresseerbare geheugeneenheid, de grote van zo een geheugencel vershilt van computertpe tot computertype, maar de meest voorkomende is 8 bits, de grote van een geheugencel word ook wel de resolutie genoemd.
 
-Het verband tussen geheugengrootte, adreslengte en resolutie is dat het aantal 
-geheugencellen de lengte bepaalt van het adres
+Het verband tussen geheugengrootte, adreslengte en resolutie is dat het aantal geheugencellen de lengte bepaalt van het adres.
+
+	- 3.2 :: Segment
+
+Een segment is een deel van het programma, het bestaat uit een aantal opeenvolgede bytes, het adres van dit segment is het adres van de eerste byte, en dat functioneert als het basisadres.
+
+Als er meerdere segmenten worden gebruikt zal voor iedere segment de relevante informatie worden bijgehouden in het segmentdescriptor, en deze bestaat uit 8 bytes, de descriptoren van de verschilende segmenten bevinden zich in de descriptorentabel.
+
+De descriptorentabel biedt plaats aan 8192 descriptoren en bevind zich in het werkgeheugen, een segmentdescriptor is genummerd, van 0 tot maximaal 8191 en dit nummer heet segmentselector.
+
+bv 
+	// de cve met een bevel uitvoeren :	8B 1D A4 2D 00 00 
+	// de verplaatsing van het dubbelwoord dat naar ebx moet worden gekopieerd is te vinden in het bevel : 00 00 2D A4
+	// in ds staat de segmentselector, deze is : 02AC
+	// om de basis hiervan te vinden moet de segmentdescriptor gelezen worden, de basis staat op de plaats 02AC van de desciptorentabel bv 	CD xx xx 2F A0 80 xx xx 
+	// de basis is dan CD 2F A0 80
+
+
+	- 3.3 :: Symbolische adressen vertalen
+
+In onze programmas schrijven we altijd symbolische adressen, en de cve gaat als eerst dit segment gaan vertalen, dit noemt de vertaling.
+
+	- 3.4 :: Adreswijziging via indexregisters
+
+		- 3.4.1 :: Waartoe dient adreswijziging
+
+bv 	
+ een programma dat 10 getallen inleest en daar het gemiddelde van geeft
+
+		%include 	"gt.asm"
+				covar
+		getal:		resd	1
+		gem:		resd 	1
+		een:		dd 	1
+		tien:		dd	10
+				inleiding
+				sub 	eax 	,	eax
+				mov	ecx	,	[tien]
+		hoger:		inv	[getal]
+				add	eax	,	[getal]
+				sub 	ecx	, 	1
+				jnz	hoger
+				imul	dword		[een]
+				idiv	dword		[tien]
+				mov	[gem]	,	eax
+				uit	[gem]
+				slot
+
+		
+		- 3.4.2 :: Indexregister
+
+Van alle computers biedt de assembleertaal de mogelijkgied de adressen te wijzigen.
+
+De cve bevat een of meer indexregister bij een een adres dat de progrmameur schrijft kan hij vermelden dat dit adres -tijdes de uitvoering moet gewijzigd worden door gebruik te maken van het indexregister.
+
+Bij een intel processor kunnen de registers edi en esi als indexregister gebruikt worden.
+
+bv 
+ 	// 	mov	eax	,	[xyz+edi]
+	// dit betekent mov een getal naar eax van het xyz getal + plus het aantal dat in 
+		edi zit
+
+Een groter voorbeeld hiervoor is.
+
+bv
+
+		%include "gt.asm"
+			covar
+		getal:	resd 	10
+		gem:	resd	1
+		hulp:	resd	1
+		een:	dd	1
+		tien:	dd	10
+			inleiding
+			sub	eax	,	eax
+			sub	edi	,	edi
+			mov	ecx	,	[tien]
+		hoger:	inv	[getal	+	edi]
+			add	eax	,	[getal	+	edi]
+			add	edi	,	4
+			sub	ecx	,	1
+			jnz	hoger
+			imul	dword	[een]
+			idiv	dword	[tien]
+			mov 	[gem]	,	eax
+			uit	[gem]
+			sub 	edi	,	edi
+			mov	ecx	,	10
+		lus:	mov	eax	,	[getal	+	edi]
+			sub	eax	,	[gem]
+			mov	[hulp]	,	eax
+			uit	[hulp]
+			add	edi	,	4
+			sub	ecx	,	1
+			jnz	lus	
+			slot
+
+
+		- 3.4.3 :: Rijen : verdere toelichting
+
+Een rij van getallen is een zeer belangrijke gegevensstructuur.
+
+		- 3.4.4 :: Programmeer-opdrachten
+
+	- 3.5 :: Het loopbevel
+
+Het loop bevel verminderd de inhoud van register ecx met 1, als de nieuwe inhoud verschillend is van 0 word gesprongen naar het bevel met symbolisch adres.
+
+	- 3.6 :: Karakterstring
+
+Computers kunnen 
+	// karakterstrings inlezen
+	// karakterstrings afdrukken
+	// bewerkingen uitvoeren op karakterstrings
+
+		- 3.6.1 :: Karakterstrings in een programma
+
+			- 3.6.1.1 :: Het type byte
+
+vb 
+	antwoord	:	db	'JA'
+
+  db betekent define byte 
+
+	de voorstelling van 'A' : 0100 0001 (41)
+	de voorstelling van 'B' : 0100 0011 (42)
+	de voorstelling van 'C' : 0100 0100 (43)
+	de voorstelling van 'D' : 0101 0101 (44)
+	de voorstelling van ' ' : 0010 0000 (20)
+
+een ander voorbeeld is 
+
+vb 
+	xyz		:	db	'Agent 007'
+
+en in het geheugen staat dan 
+
+	41 67 65 6E 74 20 30 30 37
+
+
+	//	een karakter kopeieren 	:	movsb
+	//	een string kopieren	:	rep movsb
+	//	een string van voor naar achter/van achter naar voor behandelen 	: 	cld of std 
+	//	een karakter kopieren van het geheugen naar de cve 	:	lodsb
+	//	een karakter kopieren van de cve naar het geheugen	:	stosb
+	// 	eenzelfde karakter meermaaks kopieren van de cve naar het geheugen 	:	rep stosb
+
+
+			- 3.6.1.2 :: Een karakter kopieren : het movsb-bevel 
+
+vb 
+	alfa	:	resb	6
+	beta	:	db	'Jamaar'
+			...
+			cld
+			mov	esi	,	beta (esi = van)
+			mov 	edi	,	alfa (edi = naar)
+			movsb
+
+Voor de uitvoering van het movsb-bevel vinden we in het geheugen :
+
+	alfa	:	?? ?? ?? ?? ?? ?? 
+	beta 	:	4A 61 6D 61 61 72
+
+Na het movsb-bevel
+	
+	alfa	:	4A ?? ?? ?? ?? ?? 
+	beta	:	4A 61 6D 61 61 72
+
+De uitvoering van het movsb-bevel heeft als gevolg dat de inhoud van één byte gekopieerd word.
+
+De register ESI en EDI zijn de twee geheugenplaatsen die nodig zijn bij het movsb bevel, de esi is de verplaatsing van de te kopieren byte , in edi staan de verplaatsin van de byte waar de kopie moet komen.
+
+De richtingsvlag is een bit en als deze bit de waarde 0 heeft dan worden string van voor naar achter behandeld, als deze bit de waarde 1 heeft dan worden strings van achter naar voor behandeld cld = clear direction flag en zet de vlag op 0, std zet de vlag op 1.
+
+			- 3.6.1.3 :: Veel karakters kopieren 
+
+Om meerdere karakters te kopieren moet gewoon het movsb-bevel meerdere keren uitgevoerd worden.
+
+vb
+		alfa	: 	resb	6
+		beta	:	db	'Jamaar'
+				...
+				cld
+				mov	esi	,	beta
+				mov	edi	,	alfa
+				mov	ecx	,	6
+				rep	movsb
+
+voor de uitvoering van rep movsb vinden we in het geheugen 
+
+	alfa	:	?? ?? ?? ?? ?? ?? 
+	beta	:	4A 61 6D 61 61 72
+
+na het bevel
+
+	alfa	:	4A 61 6D 61 61 72
+	beta	:	4A 61 6D 61 61 72
+
+Rep doet iets het aantal in ecx.
+
+			- 3.6.1.4 :: Directe operanden
+
+Een voorbeeld van een bevel met een directe operand is (mov 	ecx 	,	 6)
+
+			- 3.6.1.5 :: Het stosb-bevel
+
+vb
+	string	:	resb 	10
+			...
+			cld
+			mov	edi	,	string
+			mov 	al	,	'*'
+			mov 	ecx	,	7
+			rep	stosb
+
+Het efect van stosb is de inhoud van register al word gekopieerd naar de byte waarvan de verplaatsing in edi staat, de inhoud van edi word met 1 vermeerderd. 
+En dan is het geheugen
+
+	2A 2A 2A2 A2 2A 2A 2A ?? ?? ??
+
+			- 3.6.1.6 :: Een deel van een string bewerken 
+
+vb 
+	string 	:	resb	10
+			...
+			cld
+			mov	edi	,	string	+	3
+			mov	ecx	,	5
+			mov	al	,	'*'
+			rep 	stosb
+
+het efect is 
+	voor
+		?? ?? ?? ?? ?? ?? ?? ?? ?? ??
+	na	
+		?? ?? ?? 2A 2A 2A 2A 2A ?? ?? 
+
+			- 3.6.1.7 :: Het lodsb-bevel
+
+Strings of delen ever kopieren laat toe om de meeste stringbeerkingen uit te voeren .
+vb 
+	string	:	db	'jaja'
+			...
+			cld
+			mov	esi	,	string
+			lodsb
+			cmp	al	,	' '
+
+Het efect van lodsb is de byte waarvan de verplaatsing in esi staat, word gekopieerd naar register al, de inhoud van esi word met 1 vermeerderd.
+
+In het geheugen is dit het geval 
+	
+	inhoud eax 	voor	:	?? ?? ?? ?? 
+	inhoud eax	na	:	?? ?? ?? 6A
+
+		- 3.6.2 :: Karakterstrings naar een uitvoerbestand sturen
+
+Als je een bestand zou laten tonen in een programma zou je een array aan asci waarden krijgen, met een paaar 0D0A dit zijn basic waardes die zeggen dat de cursor terug moet en een rij verder moet gaan.
+
+			- 3.6.2.1 :: Uitvoerzone
+
+Om een uitvoerbestand te maken moet ons programma beroep doen op stukjes prgramma van het bestuuringsysteem, dit gebeurt met de gt bevelen openuit en schrijf, het eerste commando is nodig om het bestand te openen voor uitvoer, het bestand zal dan gesloten worden door slot.
+Met het commando schrijf sturen we karakterstrings naar het bestand, het besturingssysteem zorgt ervoor dat deze string aan het bestand toegevoegd wordt, het adres van de eerste byte van deze string ligt vast en dat moet outarea zijn.
+
+			- 3.6.2.2 :: Het commando schrijf 
+vb
+
+		%include	"gt.asm"
+				covar
+		outarea:	resb	70
+				db	0Dh	,	0Ah
+		vb1:		db	'Dit is een voorbeeld'
+		vb2:		db	'Dit ook'
+				inleiding
+				openuit
+				cld
+				mov	ecx	,	70
+				mov	al	,	' '
+				mov	edi	,	outarea
+				rep	stosb
+				mov	ecx	,	20
+				mov	esi	,	vb1
+				mov	edi	,	outarea
+				rep	movsb
+				schrijf
+				mov	ecx	,	7
+				mov	esi	,	vb2
+				mov	edi	,	outarea
+				rep	movsb
+				mov	al	,	' '	
+				mov	ecx	,	13
+				rep	stosb
+				schrijf
+				slot
+
+In het geheugen is dit aan de gang:
+
+	Na de uitvoering van het eerste (rep 	stosb) bevel worde de uitvoerzone dit.
+
+		uitvoerzone	:	(20 20 20 20 20 ...20 0D 0A) = heeft een lengte van 70
+
+	Na de uitvoering van movsb krijgen we dit.
+	
+		uitvoerzone 	:	((Asci voorstelling van Dit is een voorbeeld) 20 20 20 ... 20 0D 0A) = heeft een lengte van 70
+
+	Na de uitvoering van het schrijf bevel worden 72 bytes vanaf outarea toegevoegd aan het uitvoerbestand.
+	Door het tweede rep movsb bevel wordt de karakterstring dit ook naar het geheugen gekopieer.
+	
+		uitvoerzone	:	((ascii voorstelling van Dit ook) 20 20 20 ... 20 0D 0A) = heeft een lengte van 70
+
+	Door het tweede schrijf commando worden 72 bytes toegevoegd aan het uitvoerbestand.
+	
+De conclussie is dat het programma heeft een uitvoerbestand gemakat waarin staat.
+
+		Dit is een voorbeeld 20 ... 20 0D 0A Dit ook 20 ... 20 0D 0A
+
+Het effect van openuit is dat er een uivoerbestand geopend word.
+Het effect van schrijf is dat er 72 bytes worden gekopieerd van het werkgeheugen naar het uitvoerband.
+
+			- 3.6.2.3 :: De lengte van strings
+
+Het is een vrij vervelende taak de karakters in een string zoals dit is een voorbeeld te tellen, het tellen van bytes kunnen we aan de computer overlaten.
+
+			- 3.6.2.4 :: Spaties in de uitvoerzone
+
+Als je 70 keer een spatie wil zetten in het begin van je programma kan je dit doen.
+	outarea:	times	70	db	('')
+	
+			- 3.6.2.5 :: Van integer naar string
+
+Je hebt voor getallen twee voorstellingen de integer voorstelling en de karakterstring voorstelling.
+Dit is ook een probleem want daardoor heb je ook nog eens de 2-complement voorstelling om mee te rekenen en de ascii voorstelling en deze twee zaken zijn volledig anders.
+Dit is een voorbeeld van de correcte oplossing.
+
+	x	:	dd	24000
+	y	:	dd	936
+	outarea	:	db	'ANTWOORD : '	,	times	59 	DB 	('')
+			db	0Dh	,	0Ah
+			
+			...
+			mov	eax	,	[x]
+			add	eax	,	[y]
+			mov	ebx	,	10
+			std
+			mov	edi	,	outarea	+	15
+	lus	:	mov	edx	,	0
+			idiv	edx
+			or	dl	,	30h
+			xchange	al	,	dl
+			stosb
+			xchg	al	,	dl
+			cmp	eax	,	0
+			jne	lus
+
+		- 3.6.3 :: Karakterstrings lezen van een invoerbestand
+
+			- 3.6.3.1 :: Invoerzone
+
+Om een invoerbestand te verwerken moet ons programma beroep doen op stukjes programma van het bestuuringsysteem, dit gebeurt met de gt bevelen openin en lees , het eerste commando is nodig om het bestand te openen voor invoer, en tijdens de uitvoering van het commando lees worden er bytes van het bestand gekopieerd naar in het werkgeheugen.
+Het stukje werkgteheugen waarin de bytes terechtkomen  noemen we de invoerzone het adres van de eerste byte van deze invoerzone ligt vast en moet inarea zijn.
+
+			- 3.6.3.2 :: Het lees commando
+
+bv
+ 
+	inarea	:	resb	70
+			...
+			inleiding
+			...
+	hoger	:	lees
+			...
+			jmp 	hoger
+			slot
+
+			
+			- 3.6.3.3 :: Een bestand verwerken 
+
+De uitvoering van het lees commando heeft als gevolg dat een aantal bytes van het bestand gelezen worden.
+Als er niks meer is om te lezen dan zal de inhoud van eax nul zijn, dus dit is het eenigste wat de programmeur moet testen.
+
+			- 3.6.3.4 :: Van string naar integer 
+
+Er is hier een probleem en de oorzaak is weeral de verschillende voorstellingen van een nummer, er is hier echter wel een commando voor genaamd tekstbin, met als gevolg dat de externe inhoud vanaf de byte waarvan de verplaatsing in esi staat word omgerkend naar binair, en het aantal bytes moet in ecx staan en het resultaat komt in eax.
+
+bv 
+	inarea	:	resb	70
+			...
+			inleiding
+	hoger	:	lees
+			mov	esi	,	inarea
+			mov	ecx	,	4
+			tekstbin
+			mov	[hulp]	,	eax
+			mov	esi	,	inarea	+	4
+			mov	ecx	,	4
+			tekstbin
+			add	eax	,	[hulp]
+
+
+Na de eerste oproep van tekstbin staat er in eax:
+		00 00 1F 40
+Dit resultaat wordt weggeborgen op adres hulp en na de tweede keer tekstbin staat er:
+		00 00 00 50

@@ -4,38 +4,26 @@ x²
 
 	- 1.1 ::  Wat kan een computer?
 
-Een computer is een machine die kan werken en uitvoeren van bevelen die dan op zichzelf
-een gigantas aantal van gegevens bevat, wij kunnen deze bevelen opstellen en maken in 
-verschillende talen zoal python en java, maar deze talen zijn eigenlijk gewoon een gemakkelijke
-vertaling van de originele computertaal.
+Een computer is een machine die kan werken en uitvoeren van bevelen die dan op zichzelf een gigantas aantal van gegevens bevat, wij kunnen deze bevelen opstellen en maken in verschillende talen zoal python en java, maar deze talen zijn eigenlijk gewoon een gemakkelijke vertaling van de originele computertaal.
 
 	- 1.2 :: Basisstructuur van computers
 
 Er zijn veel verschillende computertypes maar alle types hebben dezelfde structuur namenlijke.
 De in en uitvoer apparaten werken samen met het werkgeheugen net zoals het extern geheugen.
-en het werkgeheugen zit dan weer met een eigen loop met de CVE gekoppeld.
+En het werkgeheugen zit dan weer met een eigen loop met de CVE gekoppeld.
 
-Onder in en uitvoerapparaten kan men een toetstenbord verstaan want hierdoor worden gegevens
-en programmas in de computer ingevoerd. Als daar een beeldscherm bij is word dit een Terminal
-genoemd. En de meeste resultaten van een terminal kunnen meestal worden geprint waarbij dan 
-nog een uitvoerapparaat word geschets.
+Onder in en uitvoerapparaten kan men een toetstenbord verstaan want hierdoor worden gegevens en programmas in de computer ingevoerd.
+Als daar een beeldscherm bij is word dit een Terminal genoemd. 
+En de meeste resultaten van een terminal kunnen meestal worden geprint waarbij dan nog een uitvoerapparaat word geschets.
 
-Het computergeheugen dient om gegevens en programmas te bewaren, het bestaat uit het werkgeheugen
-en het extern geheugen.
+Het computergeheugen dient om gegevens en programmas te bewaren, het bestaat uit het werkgeheugen en het extern geheugen.
 
-Het verschil tussen het werkgeheugen en het extern geheugen is
-			WERKGEHEUGEN <=> EXTERN GEHEUGEN 
-// het werkgeheugen bestaat vooral uit chips <=> waar het extern geheugen vooral uit magneetschijven
-   bestaat.
-// het werkgeheugen is direct verbonden met de CVE, het vind zich samen met de CVE op de hoofdkaart
-   <=> het extern geheugen daarintegen ins niet direct verbonden met de CVE
-// het werkgeheugen kan snel kleine hoeveelhede van gegevens uitwisselen met de CVE <=> het 
-   extern geheugen is trager 
-// het grootste deel van het werkgeheugen is vluchtig waardoor als er een stroompanne
-   is dan zal die data kwijt zijn <=> het externe geheugen daarintegen is permanent
-// in het werkgeheugen bevinden zich het programma dat de computer uitvoert en de gegevens
-   die de computer aan het verwerken is <=> in het externe geheugen vinden we de andere 
-   programmas en gegevens die reeds ingevoerd zijn.
+Het verschil tussen het werkgeheugen en het extern geheugen is	WERKGEHEUGEN <=> EXTERN GEHEUGEN 
+// het werkgeheugen bestaat vooral uit chips <=> waar het extern geheugen vooral uit magneetschijven bestaat.
+// het werkgeheugen is direct verbonden met de CVE, het vind zich samen met de CVE op de hoofdkaart <=> het extern geheugen daarintegen ins niet direct verbonden met de CVE
+// het werkgeheugen kan snel kleine hoeveelhede van gegevens uitwisselen met de CVE <=> het extern geheugen is trager 
+// het grootste deel van het werkgeheugen is vluchtig waardoor als er een stroompanne is dan zal die data kwijt zijn <=> het externe geheugen daarintegen is permanent
+// in het werkgeheugen bevinden zich het programma dat de computer uitvoert en de gegevens die de computer aan het verwerken is <=> in het externe geheugen vinden we de andere programmas en gegevens die reeds ingevoerd zijn.
 
 De centrale verwerkingseenheid of de CVE voert bevelen uit bv berekeningen.
 De CVE bestaat uit de besturingseenheid en de rekeneenheid.
@@ -45,41 +33,31 @@ De CVE bestaat uit de besturingseenheid en de rekeneenheid.
 
 	- 1.3 :: De binaire voorstelling van gegevens
 
-De informatietechnologie maakt het mogelijk om de verschillende gegevensvormen zoals tekst 
-geluid en beeld op dezelde wijze voor te stellen via een binaire taal.
+De informatietechnologie maakt het mogelijk om de verschillende gegevensvormen zoals tekst geluid en beeld op dezelde wijze voor te stellen via een binaire taal.
 
 		- 1.3.1 :: Organisatie en overdracht van gegevens 
 
-Omdat er meestal meerder bits van de binaire taal nodig zijn om bewerkingen te doen worden deze
-gegroepeerd.
+Omdat er meestal meerder bits van de binaire taal nodig zijn om bewerkingen te doen worden deze gegroepeerd.
 Een groepering van bits noemt men een register er bestaan registers van 8,16,32,64 bits.
  // de inhoud van een register is een bitrij
  // de lengte ligt vast en is een keuze van de computerfabrikant
  // een register kan nieuwe inhoud krijgen en dan verwijderd de vorige
 
-Er is natuurlijk overdracht nodig tussen verschillende, dit vereist natuurlijk dat de 
-registers met elkaar verbonden zijn , deze verbindingen bestaan uit een of meerdere geleiders
-en door deze geleiders kan elektrische stroom stromen.
+Er is natuurlijk overdracht nodig tussen verschillende, dit vereist natuurlijk dat de registers met elkaar verbonden zijn , deze verbindingen bestaan uit een of meerdere geleiders en door deze geleiders kan elektrische stroom stromen.
 
 er zijn verschillende verbindingen.
 	<<DIRECTE VERBINDING <=> BUS>>
-het is moeilijk om elk register rechtstreeks te verbinden met elk ander dus daarom gebruiken 
-we busverbindingen 
+het is moeilijk om elk register rechtstreeks te verbinden met elk ander dus daarom gebruiken we busverbindingen.
 
 Er zijn verschillende soorten bussen 
 	// paralelbus is een manier waarbij iedereen bit nog altijd een aparte geleider heeft
 	// een goedkopere manier is serie werken, dan is er maar 1 geleider
-de seriewerking is goedkopoper maar ook trager, de transperten in de centrale 
-verwerkingseenheid zijn volledig paralel, transport van toetseborden bijvoorbeeld 
-is serieel
+de seriewerking is goedkopoper maar ook trager, de transperten in de centrale verwerkingseenheid zijn volledig paralel, transport van toetseborden bijvoorbeeld is serieel.
 
 		- 1.3.2 :: De binaire voorstelling van integers
 			- 1.3.2.1 :: De binaire voorstelling van niet negatieve integers
 
-dus je maakt een tabel van de binaire cijfers zoals dit 
-4096|2048|1024|512|256|128|64|32|16|8|4|2|1
-en dazet je u binair getal eronder en dan tel je die gewoon allemaal op en dan heb je u niet
-negatief getal.
+dus je maakt een tabel van de binaire cijfers zoals dit 4096|2048|1024|512|256|128|64|32|16|8|4|2|1 en dazet je u binair getal eronder en dan tel je die gewoon allemaal op en dan heb je u niet negatief getal.
 
 			- 1.3.2.3 :: Optellen van getallen 
 
@@ -106,9 +84,7 @@ als je een binair getal wilt vermenigvuldigen met 2 dan zet je gewoon een nul er
 
 			- 1.3.2.5 :: Het Hexadecimaal stelsel 
 
-Een groot nadeel van de binaire stelsel is dat na een tijdje veel te lang word, daarvoor 
-heb je een samengevatte versie van het binaire stelsel en dit noemt het hexadecimaal stelsel
-en dit heeeft een grond van 16 getallen.
+Een groot nadeel van de binaire stelsel is dat na een tijdje veel te lang word, daarvoor heb je een samengevatte versie van het binaire stelsel en dit noemt het hexadecimaal stelsel en dit heeeft een grond van 16 getallen.
 
 			- 1.3.2.9 :: De binaire voorstelling van negatieve getallen 
 
