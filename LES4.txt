@@ -1,0 +1,51 @@
+::::::::::::::::::::::::::::::::::COMPUTERSYSTEMEN::::::::::::::::::::::::::::::::::
+____________________________________________________________________________________
+
+
+-- Hoofdstuk 4 :: Programmatuur
+
+Een computersysteerm bestaat uit aooaratuur zoals registers bussen klokken en een cve en programatuur, hierbij kunnen twee dingen onderscheiden, langs de eene kant de broncode en langs de andere kant de doelcode, programmatuur omvat vooral het bestuuringsysteem en de toepassingsprogrmammatuur.
+
+Een computersysteem in noodzakelijk om de computer op te starten en in een toestand te brengen dat er gereageerd word op commandos onder toepassings programmatuur verstaan we die programmas die de gebruiker wil doen uitvoeren want deze programmas hebben een direct nut voor hem bv tekstverwerker enzovoort.
+
+	- 4.1 :: Het assembleerprogramma
+
+		- 4.1.1 :: Voorbeeld
+
+Er word een tabel met 10 getallen gedefineerd, het programma maakt de so van de niet negatieve getallen en de som van de negatieve getallen, en beide sommen worden omgezet naar externe voorstellingen.
+
+	extern		exitprocess('gt.asm')
+	[section .data]
+	tabel		:	dd	45
+				dd	100	
+				dd	-15
+				dd	65
+				dd	75
+				dd	-22	
+				dd	-18
+				dd	-7
+				dd	20	
+				dd	10
+	wneg	:		resd	1
+	posext	:		times	12	db	(' ')
+	negext	:		times	12	db	(' ')
+
+	[section .code]
+	start	:	
+				sub	ebx	,	ebx	;	(ebx : som voor de positieve getallen)
+				sub	edx	,	edx	;	(edx : som voor de negatieve getallen)
+				sub	edi	,	edi	;	(edi word gebruikt als indexr)
+				mov	ecx	,	10	;	(10 getallen verwerken)
+				cld
+	lus	:		mov	eax	,	[tabel+edi]
+				cmp	eax	, 	0
+				jl 	nega
+				add	ebx	,	eax	:	(word uitgevoerd voor een positief getal)
+				jmp	verder
+	nega	:		add 	edx	,	eax	;	(word uigevoerd voor een negatief getal)
+	verder	:		add	edi	,	4	
+				loop 	lus
+				mov	[wneg]	,	edx
+				mov 	eax	,	ebx
+				std
+				
