@@ -1,0 +1,124 @@
+::::::::::::::::::::::::::::::::::COMPUTERSYSTEMEN::::::::::::::::::::::::::::::::::
+____________________________________________________________________________________
+
+
+-- Hoofdstuk 5 :: Computerapparatuur
+
+In dit hoofstuk zal het gaan over het moederbord tot bus chipset processor en het werkgeheugen.
+
+De eenheden
+ // 1µm 	= 	1 micron 		= 	10 tot de -6de
+ // K(ilo)	=	1.024			=	2 tot de 10de
+ // M(ega)	=	1.048.576		=	2 tot de 20ste
+ // G(iga)	=	1073741824		=	2 tot de 30ste
+ // T(era)	=	1.099.511.627.776	=	2 tot de 40ste
+ // 1µs 	=	10 tot de -6de
+ // 1ns		=	10 tot de -9de
+
+
+	- 5.1 :: Moederbord
+
+De elektronische componenten die een computer nodig heeft bevinden zich op het moederbord, het moederbord bevat ook een aantalconnectoren of socketten waarin apparaten kunnen geplugd worden.
+Verder zijn er ook nog de connectoren voor de externe apparaten, en de vereiste elelektrische verbindingen tussen al deze onderdelen zijn geintegreerd op het moederbord.
+
+	- 5.2 :: Chipset
+
+Al de communicatie tussen deze verschillende componenten is gedaan door pci bussen.
+Aangezien processoren en geheugensnelheid bij iedere generatie toenemen en dus zodat de computerapparatuur deze twee werverwinden niet zou storen word er gebruik gemaakt van bruggen , dit is eigenlijk een bus maar dan veel groter.
+In schemas plaatst men de cve bovenaan en de 2 brugchips daaronder en daarom word de bovenste de noordbrug genoemd en de onderste de zuidbrug, bij intel heeft men het over de MCH (noord) en de ICH (zuid), de brugchips en hun verbindingen worden chipset genoemd.
+Bij de nieuwste processoren is de noordbrug geintegreerd in de processor.
+
+	- 5.3 :: Bussen
+
+Een bus is een verbinding tussen slechts 2 apparaten, er worden daar 32 of 64 of 128 bits tezelfdertijd gekopieerd en dit word wel eens de busbreedte genoemd.
+Als een apparaat een signaal op de bus zet dan moet de bus enige tijd in deze toestand blijven, er is een klok die de timing van de signalen op de bus regelt, elke bewerking met de bus vereist een aantal cycli van deze klok dus de buscyclus geeft aan hoeveel tijd er nodig is om een bit te kopieren.
+Debiet is het aantal giga bytes dat per seconde kan gekopieerd worden, dit noemt men ook de bandbreedte.
+MT/S is de snelheid van de bus en is de afkorting van Mega Transfer per second.
+Om het debiet te vinden met de mt/s moet men de mt/s vermenigvuldigen met de breedte van de bus.
+PCI staat voor peripheral component interconnect en dit is op de zuidbrug want deze heeft een aansluiting voor een pci bus en op een pci bus kunnen uitbredingskaarten aangesloten worden.
+PCI-Express is niet te vergelijken met de PCI, het verschill is dat de communicatie bij PCI express is serieel en niet parallel, data kan teglijk in richting gestuurd wordenwant een pcie verbinding bestaat uit zogezegd lanes en die zijn seriele verbindingen.
+
+	- 5.4 :: Processor 
+
+Er zijn veel verschillende processoren en die zijn allemaal voor verschillende doeleindes en deze kunnen meestal maar praten met een geschikt aantal moederborden.
+
+		- 5.4.1 :: IC
+
+De processor is een IC en bestaat uit miljoenen transistoren,volgens de wet van more worden zdeze om de 18 a 24 maanden sneller door de matrixen waaro deze ics werken steeds kleiner en kleiner te maken.
+Met woordlengte wordt bedoelde de grootte van de getallen waar de processor mee rekent, hoe groter hoe meer transistoren men nodig heeft.
+Een bevelen set is een lijst van bevelen die de processor heeft, hoe groter je bevelenset hoe meer transistoren je nodig hebt maar het is wel gemakelijker om mee te werken.
+
+
+		- 5.4.2 :: Prestaties
+
+MIPS staat voor million instructions per second en hier word de snelheid van een processor soms wel eens mee uitgedruk, het probleem is echter dat sommige processors meer bevelen hebben te verwerken dan andere processors met een groter bevelenset.
+
+
+		- 5.4.3 :: Pijplijn
+
+Men wacht niet als men een bevel heeft om het volgende te sturen als de bus terug leeg is, dus daarom werken mensen met de pijplijn structuur.
+Dit houd in dat bijvoorbeeld een 1bevel us uitgewerkt na 6 cyclussen en dan is bevel 2 al begonnen op de tweede cycluss en eindigt die op de zevende.
+Er zijn wel een paar redenen waarom deze theorie vaak niet werkt:
+//als het volgende bevel het antwoord van het vorige bevel nodig heeft dan zijn er meer bevelen nodig dan de vorige.
+
+
+		- 5.4.4 :: Meer dan één
+
+Tegenwoordig is multiprocessing alle daags waarbij dat een server bijvoorbeeld meer dan 1 processor heeft.
+Hierin zou het kunnen dat elke processor zijn eigen programma krijgt dat hij meot verwerken maar als men een programma gewoon door drie deelt bijvoorbeeld dan noemen we dit threads en dan jan bijvoorbeel :
+
+	thread	1	:	het weergeven van geluid
+	thread	2	:	het tonen van beeld
+	thread	3	:	tekst laten scrollen
+
+Een hyperthreading processor kan status van meerdere taken bewaren en dit kan omdat hij meerder sets van registers heeft.
+Een multicore processor gaat nog een stap verder, deze hebben niet alleen meerder sets van registers deze hebben ook meerdere rekeneenheiden.
+
+	- 5.5 :: Grafische verwerkingseenheid
+
+Een cilouterscherm bestaat uit pixels, deze zijn gerangschikt in rijen en kolommen, het aantal pixels word de reslolutie genoemd,voor elke pixel kunnen er 3 waarden gegeven worden, dit zijn de rgb waarde.
+Het video geheugen maakt deel van het werkgeheugen maar bevind zich op een aparte eenheid namenlijk de video adapter of de grafische kaart en deze leest voortdurend het videogeheugen en toot de inhoud op een scherm.
+
+	- 5.6 :: Het werkgeheugen 
+
+		- 5.6.1 :: De samenwerking tussen werkgeheugen en cve 
+Tijdens de uitvoering van programmas vinden voortdurend kopieeerbewerkingen plaats tussen werkgeheugen en cve, bevelen kopieren van werkgehuegen naar cve heet lezen omgekeerd is schrijven, het werkgeheugen word bestuurdt door een gbe, de toegan tot het werkgeheugen gebeurt altijd op verzoek van de cve.
+
+Tegenwoordig werken werkgeheugens synchroom dat wil zeggen dat all bewerkingen beginnen bij de aanvang van een klokpuls.
+
+		- 5.6.2 :: De interne structuur van het werkgeheugen
+
+Het werkgeheugen bestaat uit ics deze laten toe miljarde bits op te slaan, ics bestaan uit transistoren daarom zegt men dat het werkgeheugen een transistirgeheugen is.
+Een bekend geheugen is SDRAM en dat staat voor synchroon dynamisch random access memory, sdram bestaat dan weer uit modules bv dims(dual in line memory module) een dimm bestataan dan weer uit een aantal geheugen ics en die bevinden zich op een moederkaart die dan in het moederbord kan ingeklikt worden.
+		
+			- 5.6.2.1 :: SDRAM-IC van 128 megabyte
+
+Een ic van deze omvang bestaat uit meerdere banks en een bank is een matrix waarin de bits zijn gerankshikt in rijen en kollomen, om een byte te kunnen lezen of schrijven moet opgegeven worden: 
+	//	het nummer van de matrix binnen elk van de 8 ics
+	//	het rijnummer
+	//	het kolomnummer
+
+Stel dat de cve de 4 bytes vanf adres 2C4D8EC0 wil kopieren naar EAX, de cve geeft het bevel door aan de gebe en de gebe vraagt aan het werkgeheugen de 8 bytes vanaf het adres de gbe weet op welk dimm deze 8 bytes staan en stuurt het juiste dimm adres via de chip select lijnen 
+
+			- 5.6.2.2 :: Wachtijden
+
+Alle stappen vergen iets van tijd.
+De precharge-wachttijd is de tijd die men pakt om de rij te selecteren.
+De rc-wachttijd is de tijd die verstrijkt vanaf het versturen van het rijnummer tot het begin van het versturen van het kolomnummer.
+De cas wachttijd is de tijd die verstrijkt vanaf het versturen van het kolomnummer tot het ogenblik waarom de data verschijnenn op de i o lijnen.
+De tijdstippen waarop er bij sdram signalen word gestuurd is afhankelijk van de klok.
+
+			- 5.6.2.3 :: Varianten
+
+Ook voor de geheugenships telt de wet van moore. 
+
+Ddr-sdram istaat voor double date rate, want bij de sdram word alleen info doorgestuurd als er een stijgend klokcyclus is maar nadien is een dalend klokcyclus en daar word bij ddrsdram ook info doorgestuurd dus dubbel zo veel info word er dan doorgestuurd.
+
+Een andere variant is de DDR2 maakt een buffer tot de tweede.
+En de laatste variant is de DDR3 en die maakt een buffer tot de derde.
+
+
+		- 5.6.3 :: Soorten transisitoren 
+
+
+
