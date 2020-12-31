@@ -118,7 +118,91 @@ Een andere variant is de DDR2 maakt een buffer tot de tweede.
 En de laatste variant is de DDR3 en die maakt een buffer tot de derde.
 
 
-		- 5.6.3 :: Soorten transisitoren 
+		- 5.6.3 :: Soorten transisitorengeheugens
+
+Er zijn verschillende soorten transistorsgeheugens
+	//	bij een dramchip is erom een bit op te slaan een schakeling nodig die bestaat auit één mos-transistor en één condensator, het voorbeeld hierbij is 		dat één bit slechts weinig plaats ineemt, een nadeel is dat de opgeslagen informatie weglekt en daarom voortdurend opfrissing nodig heeft en daarom 		heet dram dynaisch watn het heeft opfrissing nodig.
+	//	sram staat voor statische ram en dit wijst er op dat bij dgeheugenschips van dit type er geen opfrissing nodig is.
+	//	rom, een eigenschap van ram is dat het vluchtig is en eens er een stroom uitval is ben je alles kwijt, de opplossing hiervoor is om een groot deel 		van de basisprogrammas te bewaren in een deel van het werkgeheugen en dit heet het rom en dat staat voor read only memory.
+	//	prom is programmable rom en na fabricatie bevatten die nog niets van informatie.
+	//	eprom zijn erasable prom en de eeprom staat voor electrically eprom dit zijn de proms die achteraf toch nog veranderd kunnen worden.
+	//	flash geheugen is een verbetering van een eeprom.
+
+Belangrijke eigenschappen van transistorgeheugens zijn :
+	//	enerieverbruik
+	//	snelheid
+	//	aantal bits per oppervlakte
+	//	prijs per bit
+
+		
+		- 5.6.4 :: Voorgeheugens
+
+Het voorgeheugen is een klein snel geheugen waarin een kopie bewaard word van die geheugenplaatsen die het prgramma veel noddig heeft, dit word ook wel eens de cach genoemd.
+
+		- 5.6.5 :: Geheugenhierarchie
+
+Je hebt eerst registers ==> cach van niveau 1 ==> cache van niveau 2 ==> werkgeheugen ==> magneetschijven
+
+	- 5.7 :: Magneetschijven
+
+Het computer geheugen bestaat uit twee geheugens je hebt het werkgeheugen en het extern geheugen.
+
+		- 5.7.1 :: Lees en schrijf knop
+
+Het apparaat dat een oppervlakje kan magnetiseren wordt een schrijfknop genoemd, het kan nagaan in welke richting een stukje oppervlak gemagnetiseerd is met een leeskop, de beide functies worden meestal vervuld door een zogenaamde lees en schrijfkop en dit deel dat onder deze kop zit op dat moment word meestal gelezen of beschreven.
+
+		- 5.7.2 :: Sporen en sectoren
+
+Het deel van de schijf dat onder de kop passeert noemt men een spoor.
+De schijf is ingedeeld in sectoren, en in een spoor staan de bits in een rij bits achter elkaar, een spoor word wel ingedeeld in sectoren , een sector van een schijf is dat deel dat begrensd word door twee stralen, bij een magneetschijf word dit deel macrosector genoemd.
+De sectoren van een schijf zijn genummerd.
+De indeling van een spoor gaat als volgt, de gegevens in een sector zijn gescheiden van de gegevens in de daaropvogende sector door een lege ruimte , een sector bevat een hoofding met onder meer het sectornummer en de eigenlijke informatie.
+
+		- 5.7.3 :: Pariteitsbit
+
+Parateitsbit is een bit die aan ierdere byte word toegevoegd en deze krijgt de waarde 0 of 1 naar gelang het aantal enen in de byte even of oneven zijn, het resultaat bevan dan altijd een even aantal enen, dan na de pariteits-check word nagegaan of aan deze voorwaardes nog altijd voldaan is.
 
 
+		- 5.7.4 :: Capaciteit van een magneetschijf 
 
+Met capaciteit van een schijf wordt bedoeld de hoeveelheid informatie die de schijf kan bevatten uitgedrukt in aantal bytes, er is een onderscheid tussen bruto en netto capaciteit, de netto capaciteit is het aantal bytes dat ter beschikking staat van de gebruikers, het is de brutto capaciteit die verminderd met het aantal bytes nodig voor de hoofding en controle .
+De informatie dichtheid geeft aan hoe dicht de bits bij elkaar staan, men onderscheid daarin lineaire en radiale dichtheid:	
+	//	de lineaire informatiedichtheid is het aantal bits in een spoor per lengte-eenheid
+	//	de radiale dichtheid is het aantal sporen op een straal per lengte eenheid.
+
+		- 5.7.5 :: Soorten schijven 
+
+Harde en soepele schijven , jarde schijven hebben grotere capaciteit en grotere dichtheid maar zijn ook duurder, bij de soepele schijf glijdt de kop over de schijf terwijl bij de andere die daar gewoon micrometers boven hangt.
+Schijvenpakketen bestaan uit een stapel van harde schijven die op dezelfde centrale as vast ziotten , voor iedere schijfoppervlak is er één top nodig ,alle koppen zitten vast aan dezelfde arm en alle sporen die dan onder hun kop hangen als die stilstaat maken dan een cilinder.
+Vaste schijven er word een grotere capaciteit en dichtheid verkregen als de schijf in haar aandrijfeenheid blijft en dus niet verwisseld kan worden zo iets word een vaste schijf genoemd.
+
+		- 5.7.6 :: Schijfbestuuringseenheid
+
+Elke operatie op de schijf is altijd per sector , er word altijd een geheel aantal opeenvolgende sectoren gelezen of geschreven, en dit word een blok of een cluster genoemd, het lezen van een sector gebeurt in fasen :
+	1:	eerst wordt de kop boven het goede spoor gepositioneerd, de tijd hiervoor die nodig is is afhankelijk van het aantal sporen waarover de kop zich 		moet verplaatsen, dit is de zoektijd
+	2: 	vervolgens moet gewacht worden tot het begin van de sector zich onder de kop bevind , en van elke sector word het nummer gelezen tot het juiste 		nummer er is , dit is de ratationele wachttijd
+	3:	het eigenlijk lezen of schrijven gebeurt dan terwijl de sector onder de kop passeert
+
+Om informatie te kunnen opslaan op een schijf moet er een verbinding zijn tissen schijf en werkgeheugen en een omzettinge gebeuren van fysische voorstelling van een bit aan de hand van een spanningspuls naar magnetische opslag.
+De bestuuring van een schijfstation gebeurt door een aparte chip namenlijk de SBE de sbe is ook via een plate kabel verbonden met een connector op het moederbord, de sbe communiceert met de cve.
+De sbe bevat een buffer die even groot is als een of meerdere sectoren bij het schrijven is het de inhoud van deze buffer die naar de schijf gekopieerd word.
+Vooraleer informatie opgeslagen wordt worden extra bits toegevoegd deze laten toe om er na te checken of er fouten zijn en die kunnen die dan corrigeren.
+NCQ (native command queuing) is slimme sbe volgorde om de wachttijden te minimaliseren, dit is anders dan gewoon de rij afgaan.
+Er zijn verschillende sbe, de eerste is ata en dat staat voor advance technologie attachment een andere naam is integrated drive electronics, de tweede is sata en dat staat voor serial ata en dat is een redlijke nieuwe standaard en de bits worden hier serieel gestuurd en niet meer parallel.
+
+		- 5.7.7 :: Sectornummering 
+
+Het bestuuringssysteem houdt via een sectornummering bij waar welk bestand in welke sector staat.
+			
+			- 5.7.7.1 :: Lba nummering
+
+Lba staat voor logical block addressing dat begint bij 0 en eindigt bij 2 tot de 28 ste.
+
+			- 5.7.7.2 :: Zone bit recording 
+
+		- 5.7.8 :: Raid
+
+Raid staat voor redundant array of independent.
+Raid 0 zorgt ervoor dat elk grootbestand word verdeeld over verschillende schijven maar zodra er een schijf kapot gaat is er een probleem en aangezien er 4 keer zo veel schijven zijn is er 4 keer zoveel kans.
+Raid 1 hierbij word de eerste schijf ge kopieerd naar de tweede en duss dit word ook wel eens disk mirroring genoemd.
+Raid 5 hierbij word een bestand weggeschreven naar 4 van de vijf schijven en de vijfde schijf word gebruikt met een partitie.

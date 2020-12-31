@@ -48,4 +48,525 @@ Er word een tabel met 10 getallen gedefineerd, het programma maakt de so van de 
 				mov	[wneg]	,	edx
 				mov 	eax	,	ebx
 				std
+				mov	edi	,	posext	+	11
+				mov	ebx	,	10
+	lusp	:		mov	ebx	,	0
+				idiv	ebx
+				or	dl	,	30h
+				xchg	al	,	dl	
+				stosb
+				xchg	al	,	dl	
+				cmp	eax	,	0
+				jne	lusp
+
+				mov	edi	,	negext	+	11
+				sub	eax	,	eax	;	(eax = 0)
+				sub	eax	,	[wneg]	;	(eax = -(inhoud [wneg])
+	lusn	:		mov	edx	,	0
+				idv	edx
+				or	dl	,	30h
+				xchg	al	,	dl
+				stosb
+				xchg	al	,	dl
+				cmp	eax	,	0
+				jne	lusn
+				mov	al	,	'-'
+				stosb
 				
+				call Exitprocess
+
+Zolas je kan zien word er in dit voorbeeld geen gebruik gemaakt van de gt commandos.
+
+	//	Machine-bevelen :: dit zijn de bevelen die te samen het eigenlijke programma in assembleertaal vormen bv mov add en jump en deze bevelen worden na vertaling uitgevoerd door de cve.
+	//	Assembleer-bevelen :: zijn bevelen aan het vertaalprogramma , deze bevelen worden niet vertaald in machinebevelen, het vertaalprogramma voert deze bevelen uit tijdens het vertalen bv segments en ends en deze bevelen noemen directief ook een dd en een resd opdracht zijn directieven.
+
+Programmalijnen die anders verborgen zitten in de gt-commandos zijn :
+	// 	extern Exitprocess en call Exitprocess :: en met dit laatste bevel wordt terruggekeerd naar het besturingssysteem, de eerste lijn is een directief aan het vertaalprogramma dat "Exitprocess" niet in het programma staat maar ergens anders.
+	//	[section .data] :: dit is een directief aan het veralalprogramma dat aangeeft hier begint het data segment.
+	//	[section .code] :: dit is het zelfde als de lijn hierboven.
+	//	start		:: de plaats waar het symbool start staat geeft het bevel aan waarmee moet begonnen worden als de uitvoering start, dit is essentieel voor de linker.
+
+
+		- 4.1.2 :: Taken voor het vertaalprogramma
+
+We gebruiken symbolische adressen in onze programmas maar de bestuuringseenheid kan geen symbolische adressen ontleden dus moeten deze eerste vertaald worden, de vertaling van symbolische adressen is echter een vrij complexe taak, andere taken van het vertaalingsprogramma zijn onderen adneren : 
+	// Mnemotechniesche functiecodes omzetten naar getallen zoals bv sub ebx,ebx word 29
+	// Het gebruikte register omzetten bv sub ebx,ebx word 29 D8 of sub edx,edx word dan 29 D2
+	// Directe operanden omzetten zoals mov ecx,10 word dan B9 0A000000, moest het nu mov ecx,[10] zijn dan word dat B90D 0A000000
+	// Indexregisers vertalen dus mov eax,[tabel] word dan A1 00000000 maar mov eax,[tabel+edi] word 8B87 00000000
+
+Aan de verplaatsing kan de cve niet zien dat de inhoud van indexregister edi moet bijgeteld worden, het is de functiecode die dat aangeeft.
+
+
+
+					extern		exitprocess('gt.asm')
+					[section .data]
+00000000	2D000000		tabel		:	dd	45
+00000004	64000000					dd	100
+00000008	F1FFFFFF					dd	-15				
+0000000C	41000000					dd	65			
+00000010	4B000000					dd	75			
+00000014	EAFFFFFF					dd	-22			
+00000018	EEFFFFFF					dd	-18				
+0000001C	F9FFFFFF					dd	-7			
+00000020	14000000					dd	20			
+00000024	0A000000					dd	10	
+00000028	<res 00000004>		wneg	:		resd	1
+0000002C	20<rept>		posext	:		times	12	db	(' ')
+00000038	20<rept>		negext	:		times	12	db	(' ')
+
+	[section .code]
+	start	:	
+00000000	29DB						sub	ebx	,	ebx	;	(ebx : som voor de positieve getallen)
+00000002	29D2						sub	edx	,	edx	;	(edx : som voor de negatieve getallen)
+00000004	29FF						sub	edi	,	edi	;	(edi word gebruikt als indexr)
+00000006	B90A000000					mov	ecx	,	10	;	(10 getallen verwerken)
+0000000B	FC						cld
+0000000C	8B87 ........		lus	:		mov	eax	,	[tabel+edi]
+00000012	3D00000000					cmp	eax	, 	0
+00000017	7C ..						jl 	nega
+00000019	01C3						add	ebx	,	eax	:	(word uitgevoerd voor een positief getal)
+0000001B	E9 ........					jmp	verder
+00000020	01C2			nega	:		add 	edx	,	eax	;	(word uigevoerd voor een negatief getal)
+00000022	81C704000000		verder	:		add	edi	,	4	
+00000028	E2 ..						loop 	lus
+0000002A	8915 ........					mov	[wneg]	,	edx
+00000030	89D8						mov 	eax	,	ebx
+00000032	FD						std
+00000033	BF ........					mov	edi	,	posext	+	11
+00000038	BB0A000000					mov	ebx	,	10
+0000003D	BA00000000		lusp	:		mov	ebx	,	0
+00000042	F7FB						idiv	ebx
+00000044	80CA30						or	dl	,	30h
+00000047	86C2						xchg	al	,	dl	
+00000049	AA						stosb
+0000004A	86C2						xchg	al	,	dl	
+0000004C	3D00000000					cmp	eax	,	0
+00000051	75 ..						jne	lusp
+
+00000053	BF ........					mov	edi	,	negext	+	11
+00000058	29C0						sub	eax	,	eax	;	(eax = 0)
+0000005A	2B05 ........					sub	eax	,	[wneg]	;	(eax = -(inhoud [wneg])
+00000060	BA00000000		lusn	:		mov	edx	,	0
+00000065	F7FB						idv	edx
+00000067	80CA30						or	dl	,	30h
+0000006A	86C2						xchg	al	,	dl
+0000006C	AA						stosb
+0000006D	86C2						xchg	al	,	dl
+0000006F	3D00000000					cmp	eax	,	0
+00000074	75 ..						jne	lusn
+00000076	B02D						mov	al	,	'-'
+00000078	AA						stosb
+				
+00000079	E8(00000000)					call Exitprocess
+
+		
+		- 4.1.3 :: Symbolische adressen vertalen
+
+Er is een verschil bij symbolische adressen tussen definite en referentie,in nega: add edx,eax en in tabel : dd 45 worden symbolische adressen gedefinieerd en dat betekent dat het symbolische adress van nega is ook het adres van de eerste byte van het bevel add edx,eax , dit is ook bij het tweede voorbeeld zo.
+Het verschil tussen een adres van een bevel ne het adres van een dubbelwoord is minder groot dan het lijkt , beide zijn adressen van een byte in het werkgeheigen maar een bevel staat in het code segment en een dubbelwoord staat in het data segment.
+In bevelen zoals mov eax,[tabel+edi] en loop lus word er naar de symbolische adressen tael en lus gerefereerd , doordat de referentie kan voorafgaan aan de definitie is het niet mogelijk de symbolische adressen al te vervangen tijdens een eerste lezing van het programma.
+De vertaling van een programma dat symbolische adressen bevat loot daarom in twee fases.
+
+	fase 1:
+
+In fase 1 zal er om te beginnen het opstellen van de zogenaamde symbolentabel plaats vinden, in de eerste fase overloopt het vertaalprogramma het bronprogramma , en het vertaalprogramma houdt een hexidecimale teller bij de zogenaamde byte-teller, per segment word er een aparte byteteller bijgehouden, de waarde van da byteteller is gelijk aan de verplaatsing.
+Een voorbeeld van een symbolentabel is :
+SYMBOL NAME		TYPE						VALUE
+lus			near				code:		0000000C
+lusn			near				code:		00000060
+lusp			near				code:		0000003D
+nega			near				code:		00000020
+negext			byte				data:		00000038
+posext			byte				data:		0000002C
+tabel			dword				data:		00000000
+verder			near				code:		00000022
+wneg			dword				data:		00000028
+
+	
+	fase 2:
+
+Dus na fase 1 beschikt het vertaalprogramma over de volgende informatie - de verplaatsing van ieder symbolisch adres via de symbolentabel - het soort segment waarin dit symbolisch adres gedefinieerd is en het type van dit adres.
+
+vb:
+
+De vertalling van het bevel jl nega in :
+
+00000017	7C ..				jl	nega
+00000019	01C3				add	ebx 	,	eax
+0000001B	E902000000			jmp	verder
+00000020	01C2		nega	:	add	edx	,	eax
+
+gaat als volgt : 
+	de byte teller voor symbolisch adres nega is (symbolentabel) 00000020
+	de byte teller voor het bevel jl nega is 00000017
+	het bevel jl nega is na vertaling zelf 2 bytes, dus tijdens de uitvoering van het bevel jl nega zal de bevelenteller de waarde 00000017+2 bevatten
+	dit is 7 (= 00000020 - 00000019) bytes verder
+
+En dus word het bevel jl nega dan ook ga 7 bytes verder indien kleiner dan 0, en dat word vertaald in 7C07
+
+		- 4.1.4 :: Herlocatie
+
+Nadat een programma vertaald is kan het uigevoerd worden, eerst word de vertaalde versie naar het werkgeheugen gekopieerd , een programma kan vertaald worden voor het ergens geplaatst word, en daardoor is herlocalisatie mogelijk.
+
+	- 4.2 :: Subroutines
+
+Programmas die deel uitmaken van een groter geheel worden deelprogrammas of subprogrammas genoemd, een typisch voorbeeld is een stukje programma om gegevens te tonen op een beeldscherm zodat elke keer je dat nodig hebt je gewoon die code oproept.
+
+		- 4.2.1 :: Het eip-register
+
+De bevelenteller in de cve bevat het adres van het volged uit te voeren bevel, dus als adres = basis + verplaatsing dan word de verplaatsing bijgehouden in het eip register.
+
+		- 4.2.2 :: De stapel
+
+De intel processoren laten toe om gegevens op een stapel te plaatsen, hier kan je dit onder begrijpen :
+	een volgend element komt boven het vorige
+	het element dat afgehaald word is het laatste element dat op de stapel is geplaatst
+	als het element afgehaalt word word het element dat eronder lag het bovenste element van de stapel
+
+Je kan een stapel beheren met het bevel push en pop, bij het eerste word er een element op de stapel geplaatst, bij het tweede gaat er een van de stapel
+
+bv 
+
+	na 	
+		mov	eax	,	3
+		...
+		push	eax
+		...
+
+	krijgen we
+
+		3 (top van de stapel)
+
+	als daarna	
+		...
+		mov 	ebx	,	17
+		push	ebx
+	
+	krijgen we 
+		
+		17 (top van de stapel)
+		3
+
+	na 
+		pop ebx
+
+	hebben we als inhoud ebx 17 en 
+		
+		3 (top van de stapel)
+
+	na	
+		pop eax
+
+	is eax = 3
+
+		en de stapel is leeg
+
+
+
+		- 4.2.3 :: Call en ret-bevel
+
+Het gebeurt vaak dat eenzelfde reeks van bevelen meerdere keren in een programma voorkomen, de mogelijkheid bestaat om dergelijke reeks van bevelen maar een keer te moeten schrijven, dit noemt men een subroutine.
+
+bv 
+			inv	[haha]
+			call	abc
+			mov 	[x]	,	eax
+			...
+			uit	[x]
+			call	abc	
+			add	esi	,	edi	
+			...
+			idiv	dword	[getal]
+			call	abc
+			mov	ecx	,	[haha]
+			...
+			.
+			.
+			.
+	abc	:	mov	eax	,	[a]
+			imul	dword	[a]
+			mov	ebx	,	eax
+			mov	eax	,	[b]
+			imul	dword	[b]
+			add	ebx	,	eax	
+			ret	
+			.
+			.
+			.
+
+Het bevel call abc doet twee zaken 
+	ten eerste : de inhoud van het eip register kopieren naar de stapel, op de stapel komt dus de verplaatsing van het bevel dat volgt op call, dit is het terugkeer-adres
+	ten tweede : een sprong naar het eerste bevel van de subroutine met adres abc.
+
+Het effect van het bevel ret is de top 4 bytes van de stapel copieren naar het eip register en dan komt in het eip register het terugkeeradres.
+
+
+		- 4.2.4 :: Subroutines en registers
+
+vb 
+in een programma staat al:
+
+		rij	:	resd	10
+		g	:	resd	1
+
+met een subroutine die het gemiddelde berekent
+
+		gem	:	mov	eax	,	0
+				mov	esi	,	0
+		lus	:	cmp	esi	,	36
+				jg	einde
+				add	eax	,	[rij	+	esi]
+				add	esi	,	4
+				jmp	lus
+		einde	:	mov	edx	,	0
+				mov	ebx	,	10
+				idiv	ebx
+				mov	[g]	,	eax
+				ret
+
+
+		- 4.2.5 :: Parameters en subroutines 
+
+Om hier boven een subroutine oproep te krijgen dat inh(d) = inh(b)² - 4 * inh(a)*inh(c) zal de subroutine moeten kunnen werken met waardes op adressen abc en uvw dit zijn parameters.
+
+vb
+in het programma staat 
+
+	a	:	resd	1	
+	b	:	resd	1
+	c	:	resd	1
+	d	:	resd	1
+			inleiding
+			...
+			push	dword	[d]
+			push	dword	[c]
+			push	dword	[b]
+			push 	dword	[a]
+			call discr
+			pop 	dword	[d]
+			...
+
+na het call bevel uitgevoerd is en de veronderstelling dat de waarde van abc respectievelijk 16 en 5 zijn is de stapel
+
+	ESP ==> 	|t.k.-adres |
+			|00 00 00 05|
+			|00 00 00 06|
+			|00 00 00 01|
+			|?? ?? ?? ??|
+
+In de subroutine kunnen zoals in ieder programma push , pop , call bevelen staan, deze veranderen de waarde van esp en omdat de parameters op de stapel staan is het nodig de beginwaarde van esp te bewaren, intel heeft hiervoor een speciaal register ebp.
+Daarom begint het subroutine ook met 
+	
+	discr	:	push	ebp
+			mov	ebp	,	esp
+
+En dat zet het ebp bovenaan bij op de stapel, en dan staan d parameters zo (EBP +20 , EBP + 16 )enzovoort.
+
+De volledige subroutine is dan ook:
+
+	discr	:	push	ebp
+			mov	ebp	,	esp	
+			push	eax
+			push	ebx
+			push	edx
+			mov	eax	,	4
+			imul	dword	[ebp+16]
+			imul	dword	[ebp+8]
+			mov 	ebx	,	eax
+			mov	eax	,	[ebp+12]
+			imul	dword	[ebp+12]
+			sub	eax	,	ebx
+			mov	[ebp+20],	eax
+			pop	edxwe
+			pop	ebx
+			pop	eax
+			pop	ebp
+			ret 	12
+
+De subroutine heeft 3 push bevelen om de waarde van eax , ebx edx te kunnen herstellen, deze bevelen veranderen wel de waarde vas eps maar niet van ebp, na de uitvoering van het bevel sub 	eax	,	ebx staat het gewenste resultaat in eax, na mov	[ebp+20]	,	eax is de stapel:
+
+	esp	==>	|...		 |
+			|...		 |
+			|...		 |
+	ebp	==>	|ebp(oude waarde)|
+			|t.k.-adres	 |
+			|00 00 00 05 	 |
+			|00 00 00 06	 |
+			|00 00 00 01	 |
+			|00 00 00 10	 |
+
+Na de uitvoering van de vier pop bevelen is de stapel
+
+	esp	==>	|t.k.-adres |
+			|00 00 00 05|
+			|00 00 00 06|
+			|00 00 00 01|
+			|00 00 00 10|
+
+
+Na dat de berekeningen zijn uitgevoerd zijn de waarde abc niet meer nodig op de stapel en daarom is het ret 12 bevel er.
+
+		- 4.2.6 :: Aparte vertaling van subroutines 
+
+Men moet eerst aangeven dat men een subroutine gebruikt, dit is via een extern directief zoals
+
+	exter	vsubr
+
+Als het ter beschiking moet komen te staan voor andere programmas dan moet het een globaal directief worden en dus
+
+	global	vsubr
+
+Het geheel zou er dan zo uitzien:
+
+	%inlcude	"gt.asm"
+			covar
+	getal		resd	1
+			inleiding
+	extern		tester
+			mov	eax	,	25
+			mov	[getal]	,	eax
+			push	dword	getal
+			call	tester
+			uit 	[getal]
+			slot
+
+Dit zou dan bijvoorbeeld hoofdpr.obj zijn en de subroetine zal dan hulppr.obj zijn en dat ziet er zo uit
+
+		[section .data]
+		twee	:	dd	2
+		[section .code]
+		global	tester
+		tester	:	mov	ebp	,	esp
+				mov	esi	,	[ebp+4]
+				mov	eax	,	[esi]
+				add	eax	,	[twee]
+				mov	[esi]	,	eax
+				ret	4
+
+	- 4.3 :: Systeemroutines
+
+subroutines die vereist zijn om randaparatuur te runnen noemen we systeemroutines.
+
+		- 4.3.1 :: Terug naar windows : exitprocess
+
+Dit is het beeindigen van een programma met call Exitprocess.
+
+		- 4.3.2 :: Een karakter string tonen op het scherm
+
+In een programma staat bijvoorbeeld:
+
+	extern 	GetStdHandle	,	WriteFile
+	...
+	hulpd	resd	1
+	zin	db 	'Eureka'	,	0Ah	,	0Dh
+	...
+	push	dword	-11
+	call	GetStdHandle
+
+	push	dword	0
+	push	sword	hulpd
+	push	dword	8
+	push	dword 	zin
+	push	eax
+	call	WriteFile
+
+Met WriteFile kan men bytes wegschrijven, het bestand naar waar de bytes dan geschreven word noemt de hendel die verkregen is door de systeemroutine GetStdHandle op te roepen.
+
+		- 4.3.3 :: Een string lezen van het toetsenbord : ReadFile
+
+In een programma staat bijvoorbeeld:
+
+	extern 	GetStdHandle	,	ReadFile
+	...
+	hulpd	resd	1
+	invoer	resb	25
+
+	...
+	push	dword	-10
+	call	GetStdHandle
+
+	push	dword	0
+	push	dword	hulpd
+	push	dword	17
+	push	dword	invoer
+	push	eax
+	call	ReadFile
+
+Met ReadFile kan men bytes inlezen, het bestand word weeral eens gekozen door de hendel.
+
+
+		- 4.3.4 :: Andere routines
+
+	// een bestand openen		:	CreateFileA
+	// een bestand sluiten		:	CloseHandle
+	// naar een bestand schrijven	:	WriteFile
+	// van een bestand lezen	:	ReadFile
+
+
+	- 4.4 :: Macro's
+
+Een macro is een reeks van bevelen , dit word een macroblok genoemd vooraf gegaan met een macro - prototype %macro en gevolgd door het woordje endmacro.
+bv
+
+	%macro		wissen	0					;macro prototype
+			cld						;m
+			mov	edi	,	outarea+2		;	a
+			mov	ecx	,	80			;		c
+			mov	al 	,	' ' 			;			ro-
+			rep	stosb					;				blok
+	%endmacro
+	
+
+De woorden %marco en %endmarco zijn beide directieven, om een macro op te roepen schrijf je gewoon die naam.
+
+	- 4.5 :: Oefeningen
+
+	- 4.6 :: Soorten programmeertalen 
+
+		- 4.6.1 :: Lagere en hogere programmeertalen 
+
+De code die alleeen een cve kan begrijpen is geschreven in in wendige machinetaal, als men spreekt over mnemotechnische functiecodes gaaat het over uitwendige machinetaal, assembley is een laere programmeertaal andere talen zoals.
+	
+		- 4.6.2 :: Onderscheid vertalen vs vertolken 
+
+Assembley gebruikt een vertaal process, javascrip doet dat niet en vertolkt gewoon elk rij achter elkaar, dit zorgt ervoor dat er minder geheugen in genomen word en maaar als je een programma 100 keer iets wilt laten doen zal je programma dit ook 100 keer vertolke.
+
+		- 4.6.3 :: Microprogrammatie 
+
+Microprogrammatie heeft te maken met de wijze waaarop de processor de machine bevelen uitvoert, en dit komt neer op het uitvoeren van meer elementaire bevelen in een wel bepaalde volgorde.
+bv:
+	0305 2C000000
+
+1)- nadat de bytes 03 en 05 zijn binnengekomen weet be dat een dubbelwoord moet opgeteld worden bij eax
+2)- daarna komen de volgende 4 bytes 2C000000 in de be te staan
+3)- het adres word berekent : basis + verplaatsing dusss basis + 0000002C
+4)- het adres word naar het werkgeheugen gestuurd
+5)- er word een lees bevel naar het werkgeheugen gestuurd
+6)- de inhoud van eax word gekopieerd naar de rekeneeheid
+7)- het dubbelwoord dat het werkgeheugen levert naar de andere ingang van de rekeneenheid gekopieerd
+8)- de rekeneenheid krijgt een optelbevel
+9)- de uitgan van de rekeneenheid word gekopieerd naar eax
+
+		- 4.6.4 :: ris en cis computers
+
+Een intel computer is een ultiem voorbeel van een cis computer, cis staat voor complex instruction set computers waarin ris staat voor reduced instruction set computers, deze ris processoren hebben geen microcode want de machinebevelen zijn zo beperkt dat ze geen extra plaats hoeven te maken.
+
+		- 4.6.5 :: Virtuele machine
+Java code word omgezet in twee stappen.
+
+	stap 1
+
+java programmas worden eerst vertaald door de compiler javac.
+
+	stap 2
+
+de code word dan vertolkt door een jvm een java virtuele machine
+
+			- 4.6.5.1 :: De jvm-processor
+
+De jvm heeft geen rekenregister maar werkt met de stapel, operanden moeten op de stapel gezet worden en bewerkingen worden gedaan met de top twee bovenste getallen.
+
+			- 4.6.5.2 :: Bytecode, voorbeel
+			
+			- 4.6.5.3 :: Efficientie
